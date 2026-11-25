@@ -16,7 +16,7 @@ export default async function handler(req, res) {
   const entry = windows.get(ip) || {count:0,until:now+60000};
   if (++entry.count > 5) return fail(429, 'Please wait a minute before sending more messages.');
   windows.set(ip, entry);
-  const model = process.env.GEMINI_MODEL;
+  const model = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
   if (!model || !/^[a-zA-Z0-9._-]+$/.test(model)) return fail(503, 'A supported Gemini model must be configured.');
   try {
     const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(model)+':generateContent', {

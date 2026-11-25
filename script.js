@@ -9,8 +9,7 @@ const clearChatButton = document.getElementById("deleteButton");
 let currentUserMessage = null;
 let isGeneratingResponse = false;
 
-const GOOGLE_API_KEY = "Your Api Key"; //create your own api key and paste it here
-const API_REQUEST_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${GOOGLE_API_KEY}`;
+const API_REQUEST_URL = "/api/gemini";
 
 // Load saved data from local storage
 const loadSavedChatHistory = () => {
@@ -32,7 +31,7 @@ const loadSavedChatHistory = () => {
 
             <div class="message__content">
                 <img class="message__avatar" src="assets/profile.png" alt="User avatar">
-               <p class="message__text">${conversation.userMessage}</p>
+               <p class="message__text"></p>
             </div>
         
         `;
@@ -41,13 +40,14 @@ const loadSavedChatHistory = () => {
       userMessageHtml,
       "message--outgoing"
     );
+    outgoingMessageElement.querySelector(".message__text").textContent = String(conversation.userMessage || "");
     chatHistoryContainer.appendChild(outgoingMessageElement);
 
     // Display the API response
     const responseText =
       conversation.apiResponse?.candidates?.[0]?.content?.parts?.[0]?.text;
-    const parsedApiResponse = marked.parse(responseText); // Convert to HTML
-    const rawApiResponse = responseText; // Plain text version
+    const parsedApiResponse = String(responseText || ""); // Convert to HTML
+    const rawApiResponse = String(responseText || ""); // Plain text version
 
     const responseHtml = `
         
@@ -108,7 +108,7 @@ const showTypingEffect = (
 
   if (skipEffect) {
     // Display content directly without typing
-    messageElement.innerHTML = htmlText;
+    messageElement.textContent = htmlText;
     hljs.highlightAll();
     addCopyButtonToCodeBlocks();
     copyIconElement.classList.remove("hide"); // Show copy button
@@ -125,7 +125,7 @@ const showTypingEffect = (
     if (wordIndex === wordsArray.length) {
       clearInterval(typingInterval);
       isGeneratingResponse = false;
-      messageElement.innerHTML = htmlText;
+      messageElement.textContent = htmlText;
       hljs.highlightAll();
       addCopyButtonToCodeBlocks();
       copyIconElement.classList.remove("hide");
@@ -148,13 +148,13 @@ const requestApiResponse = async (incomingMessageElement) => {
     });
 
     const responseData = await response.json();
-    if (!response.ok) throw new Error(responseData.error.message);
+    if (!response.ok) throw new Error(responseData.error?.message || "Chat request failed.");
 
     const responseText =
       responseData?.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!responseText) throw new Error("Invalid API response.");
 
-    const parsedApiResponse = marked.parse(responseText);
+    const parsedApiResponse = String(responseText || "");
     const rawApiResponse = responseText;
 
     showTypingEffect(
@@ -186,6 +186,7 @@ const addCopyButtonToCodeBlocks = () => {
   const codeBlocks = document.querySelectorAll("pre");
   codeBlocks.forEach((block) => {
     const codeElement = block.querySelector("code");
+    if (!codeElement || block.querySelector(".code__copy-btn")) return;
     let language =
       [...codeElement.classList]
         .find((cls) => cls.startsWith("language-"))
@@ -317,6 +318,7 @@ clearChatButton.addEventListener("click", () => {
 // Handle click on suggestion items
 suggestionItems.forEach((suggestion) => {
   suggestion.addEventListener("click", () => {
+    if (isGeneratingResponse) return;
     currentUserMessage = suggestion.querySelector(
       ".suggests__item-text"
     ).innerText;

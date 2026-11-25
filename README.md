@@ -1,14 +1,13 @@
+# Gemini clone
 
-## Warning
-You need to get your own **API Key** and replace it in script.js file on line 12 :
+An early browser-based chat interface I built using HTML, CSS and JavaScript to experiment with Google's Gemini API.
 
-```javascript
-const GOOGLE_API_KEY = "YOUR_API_KEY";
-```
-#### 💻 Technologies that I used
-![HTML5](assets/html.svg) ![CSS3](assets/css.svg) ![Bootstrap](assets/bootstrap.svg) ![TailwindCSS](assets/tailwind.svg) ![JavaScript](assets/javascript.svg)
+## Running it
 
-# Screenshot
-Here we have project screenshot :
+The original script expects a Gemini API key and uses an older model endpoint. That endpoint may no longer work. Check Google's current API documentation before running the project.
 
-![screenshot](screenshot.png)
+Do not put a real API key in public JavaScript or commit it to Git. For a deployed version, move the API request to a backend that stores the key in an environment variable.
+
+## Screenshot
+
+![Chat interface](screenshot.png)
